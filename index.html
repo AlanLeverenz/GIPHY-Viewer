@@ -127,40 +127,37 @@ $(document).ready(function() {
                 // push all captured image URL's in an array
                 for ( var j = 0 ; j < 10 ; j++ ) {
                     // Saving the image_original_url property
-                    var imageUrl = response.data[j].images.original.url;
-                    console.log(imageUrl);
+                    var imageUrlStill = response.data[j].images.original_still.url;
+                    var imageUrlAnimate = response.data[j].images.original.url;
+                    var rating = response.data[j].rating;
+                    console.log(imageUrlStill);
                     // Creating and storing an image tag
                     var myGif = $("<img>");
                     // Setting the image's attributes
-                    myGif.attr("src", imageUrl);
+                    myGif.attr("src", imageUrlStill);
                     myGif.attr("alt", data);
-                    myGif.attr("data-still", imageUrl);
-                    myGif.attr("data-animate", imageUrl);
+                    myGif.attr("data-still", imageUrlStill);
+                    myGif.attr("data-animate", imageUrlAnimate);
                     myGif.attr("data-state", "still");
                     myGif.attr("data-id", [j]);
                     myGif.attr("class", "gif");
-
+              
                     // place each image in a card div, floating left, 
-                    // <div class="card">
-                    //     myGif
-                    //     <div class="card-body">
-                    //         <h5 class="card-title">Card title</h5>
-                    //     </div>
-                    // </div>
-
+                    var myCard = $("<div class='card'>");
+                    var cardRating = "<h6>" + rating + "</h6></div>";
+                    $(myCard).append(cardRating).append(myGif);
+                    
                     // Prepend the div inside the images div
-                    $("#giphy-images").prepend(myGif);
+                    $("#giphy-images").prepend(myCard);
                 } // end for
             }); // end function
         }); // end on click
 
         // ON CLICK TO ANIMATE AND STILL----------------------------------
-        $(".gif").on("click", function() {
+        $(document.body).on("click", "img", function() {
             // Set the state variable from the img attribute
             var state = $(this).attr("data-state");
-            // If the clicked image's state is still, update its src attribute to what its data-animate value is.
-            // Then, set the image's data-state to animate
-            // Else set src to the data-still value
+            // Set up a toggle to switch between still and animate
             if (state === "still") {
                 $(this).attr("src", $(this).attr("data-animate"));
                 $(this).attr("data-state", "animate");
