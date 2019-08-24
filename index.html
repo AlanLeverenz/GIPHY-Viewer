@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>GIPHY Viewer</title>
+
+    <!-- BOOTSTRAP AND FONT-AWESOME LINKS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+
+    <!-- CSS STYLE LINK -->
+    <link rel="stylesheet" href="style.css">
+
+    <!-- jQuery CDN -->
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
+</head>
+
+<body>
+    
+<div class="container" id="main-section">
+
+    <h2>Favorite GIPHY Topics</h2>
+    <!--  CONTAINER FOR GIPHY BUTTONS -->
+    <div class="row container" id="giphy-buttons"></div>
+
+    <!-- GIPHY IMAGES -->
+    <div class="row">
+        <div class="col-sm-9" id="giphy-images"></div>
+
+        <!-- FORM -->
+        <div class="form-group col-sm-3">
+            <label for="topic-input"><h5>Add a topic</h5></label>
+            <input type="text" class="form-control" id="topic-input">
+            <br>
+            <input id="add-topic" type="submit" class="btn btn-primary">
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+
+$(document).ready(function() { 
+    // My BCS Bootcamp Beta Key
+    apiKey = "BkaUZZWcFij6J7AoQj3WtPb1R2p9O6V9";
+    // apiKey = "MOzSEtLAxYxiZGXanlmdvpSldqlXrX6N";
+    q = "SEARCH QUERY"; // search word or phrase
+    limit = "MAX NUMBER OF RESULT ITEMS"; // numeric
+    rating = "RATING"; // Y, G, PG, PG-13, R
+    responseCode = 200; // OK
+
+    // VARIABLE ---------------------------------
+
+    var topics = ["frozen","lion king","ice age","zootopia","the incredibles","toy story","ratatouille","finding nemo","happy feet"];
+
+    var imageURLArr = [];
+
+    // FUNCTION ---------------------------------
+
+    function renderButtons() {
+
+        // Deleting the giphy buttons prior to adding new giphy buttons
+        $("#giphy-buttons").empty();
+
+        // Looping through the array of giphy buttons
+        for (var i = 0; i < topics.length; i++) {
+
+            // Dynamically buttons for each topic in the array.
+            var btn = $("<button>");
+            // Adding a class
+            btn.addClass("btn btn-info");
+            // Adding a data-attribute with a value of the topic at index i
+            btn.attr("data-id", [i]);
+            // Provide value in name attribute
+            btn.attr("data-name", topics[i]);
+            // Providing the button's text with a value of the topic at index i
+            btn.text(topics[i]);
+            // Adding the button to the HTML
+            $("#giphy-buttons").append(btn);
+        }; // end for
+    }; // end function
+
+    // ON-CLICK ADD TOPIC BUTTON --------------------------------------
+
+    // This function handles events where form button is clicked
+    $("#add-topic").on("click", function(event) {
+        // event.preventDefault() prevents the form from trying to submit itself.
+        event.preventDefault();
+
+        // This line will grab the text from the input box
+        var topic = $("#topic-input").val().trim();
+        // The movie from the textbox is then added to our array
+        topics.push(topic);
+
+        // calling renderButtons which handles the processing of the topic array
+        renderButtons();
+    }); // end form button submit
+ 
+    // Calling the renderButtons function to display the initial list of topics
+    renderButtons();
+
+
+    // GET 10 GIPHY IMAGES ================================
+
+    // Event listener for the topic button
+    $("button").on("click", function() {
+
+        // empty the existing images
+        $("#giphy-images").empty();
+
+        // set the name of the topic
+        var data = $(this).attr("data-name");
+
+        // Storing our giphy API URL for downloading image files
+        var queryURL = "https://api.giphy.com/v1/gifs/search?api_key=" + apiKey + "&q=" + data + "&limit=10";
+
+        // Perform an AJAX GET request with the queryURL
+        $.ajax({
+        url: queryURL,
+        method: "GET"
+        })
+            // After the data from the AJAX request comes back
+            .then(function(response) {
+                console.log(response);
+
+                // push all captured image URL's in an array
+                for ( var j = 0 ; j < 10 ; j++ ) {
+                    // Saving the image_original_url property
+                    var imageUrl = response.data[j].images.original.url;
+                    console.log(imageUrl);
+                    // Creating and storing an image tag
+                    var myGif = $("<img>");
+                    // Setting the image's attributes
+                    myGif.attr("src", imageUrl);
+                    myGif.attr("alt", data);
+                    myGif.attr("data-still", imageUrl);
+                    myGif.attr("data-animate", imageUrl);
+                    myGif.attr("data-state", "still");
+                    myGif.attr("data-id", [j]);
+                    myGif.attr("class", "gif");
+
+                    // place each image in a card div, floating left, 
+                    // <div class="card">
+                    //     myGif
+                    //     <div class="card-body">
+                    //         <h5 class="card-title">Card title</h5>
+                    //     </div>
+                    // </div>
+
+                    // Prepend the div inside the images div
+                    $("#giphy-images").prepend(myGif);
+                } // end for
+            }); // end function
+        }); // end on click
+
+        // ON CLICK TO ANIMATE AND STILL----------------------------------
+        $(".gif").on("click", function() {
+            // Set the state variable from the img attribute
+            var state = $(this).attr("data-state");
+            // If the clicked image's state is still, update its src attribute to what its data-animate value is.
+            // Then, set the image's data-state to animate
+            // Else set src to the data-still value
+            if (state === "still") {
+                $(this).attr("src", $(this).attr("data-animate"));
+                $(this).attr("data-state", "animate");
+            } else {
+                $(this).attr("src", $(this).attr("data-still"));
+                $(this).attr("data-state", "still");
+            }
+        }); // end on click function
+}); // end document ready
+
+</script>
+
+<script src="https://code.jquery.com/jquery-3.4.1.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+
+</body>
+</html>
