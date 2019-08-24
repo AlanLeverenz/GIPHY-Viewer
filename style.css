@@ -21,13 +21,14 @@ button {
 
 img {
     height: 96px;
-    margin: 5px;
+    margin: 0 5px;
 }
 .card {
     float:left;
     height: 135px;
     background-color: rgb(182, 225, 252);
     margin: 5px;
+    padding-top: 4px;
 }
 h6 {
     text-align: center;
