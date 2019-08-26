@@ -100,12 +100,12 @@ $(document).ready(function() {
     // Calling the renderButtons function to display the initial list of topics
     renderButtons();
 
+    // console.log(document.body);
 
     // GET 10 GIPHY IMAGES ================================
 
-    // Event listener for the topic button
-    $("button").on("click", function() {
-
+    // Event listener for the topic button. use (document) as location.
+    $(document).on("click", "button", function() {
         // empty the existing images
         $("#giphy-images").empty();
 
@@ -122,7 +122,7 @@ $(document).ready(function() {
         })
             // After the data from the AJAX request comes back
             .then(function(response) {
-                console.log(response);
+                // console.log(response);
 
                 // push all captured image URL's in an array
                 for ( var j = 0 ; j < 10 ; j++ ) {
@@ -130,7 +130,7 @@ $(document).ready(function() {
                     var imageUrlStill = response.data[j].images.original_still.url;
                     var imageUrlAnimate = response.data[j].images.original.url;
                     var rating = response.data[j].rating;
-                    console.log(imageUrlStill);
+                    // console.log(imageUrlStill);
                     // Creating and storing an image tag
                     var myGif = $("<img>");
                     // Setting the image's attributes
